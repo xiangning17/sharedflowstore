@@ -23,7 +23,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'xiangning.coroutines'
-            artifactId = 'flow-extension-sharedstore'
+            artifactId = 'flow-extension-sharedflowstore'
             version = project.version
 
             from components.java

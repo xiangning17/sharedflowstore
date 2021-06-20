@@ -1,4 +1,4 @@
-package xiangning.coroutines.sharedstore
+package xiangning.coroutines.sharedflowstore
 
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
@@ -21,9 +21,14 @@ object SharedStore {
     val size: Int = store.size
 
     @Suppress("UNCHECKED_CAST")
-    fun <T: Any> getOrCreated(cls: KClass<*>, name: String?, creator: () -> T): T {
+    fun <T : Any> getOrCreated(
+        cls: KClass<*>,
+        name: String?,
+        onCache: ((T) -> Unit)? = null,
+        creator: () -> T
+    ): T {
         val k = Key(cls, name)
-        val obj = (store[k]?.get() as? T) ?: creator().also {
+        val obj = (store[k]?.get() as? T)?.also { onCache?.invoke(it) } ?: creator().also {
             store[k] = WeakReference(it)
             println("SharedStore: store obj: $k")
         }
