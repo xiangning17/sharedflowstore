@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         val user = UserInfo("Tom", logined = false, money = 0f).sharingStateFlow()
         // 也可以使用name参数对同一种类型生成代表不同含义的状态，下面返回一个的Int型名为“like”的共享状态，用来共享获赞的数量
         // to get a shared state, you can also pass a 'name' to sharingStateFlow
-        // val like = 5.asSharedStoreMutableStateFlow(name = "like")
+        // val like = 5.sharingStateFlow(name = "like")
 
         // 观察user的改变
         // observe change event of user
