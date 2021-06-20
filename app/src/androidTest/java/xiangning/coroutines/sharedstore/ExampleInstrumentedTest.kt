@@ -1,4 +1,4 @@
-package xiangning.coroutines.mutablesharedflowholder
+package xiangning.coroutines.sharedstore
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

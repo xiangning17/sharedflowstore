@@ -1,4 +1,4 @@
-package xiangning.coroutines.mutablesharedflowholder
+package xiangning.coroutines.sharedstore
 
 import org.junit.Test
 

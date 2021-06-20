@@ -1,4 +1,4 @@
-package xiangning.coroutines.mutablesharedflowholder
+package xiangning.coroutines.sharedstore
 
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
@@ -18,8 +18,10 @@ object SharedStore {
 
     private val store = ConcurrentHashMap<Key, WeakReference<*>>()
 
+    val size: Int = store.size
+
     @Suppress("UNCHECKED_CAST")
-    fun <T: Any> getOrCreated(cls: KClass<T>, name: String?, creator: () -> T): T {
+    fun <T: Any> getOrCreated(cls: KClass<*>, name: String?, creator: () -> T): T {
         val k = Key(cls, name)
         val obj = (store[k]?.get() as? T) ?: creator().also {
             store[k] = WeakReference(it)
@@ -29,7 +31,7 @@ object SharedStore {
         return obj
     }
 
-    private fun trim() {
+    fun trim() {
         val iterator = store.iterator()
         var entry: MutableMap.MutableEntry<Key, WeakReference<*>>
         while (iterator.hasNext()) {

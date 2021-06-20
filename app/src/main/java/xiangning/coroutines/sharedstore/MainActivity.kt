@@ -1,12 +1,13 @@
-package xiangning.coroutines.mutablesharedflowholder
+package xiangning.coroutines.sharedstore
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
+import xiangning.coroutines.sharedstore.SharedStoreStateFlow.asSharedStoreMutableStateFlow
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
@@ -18,27 +19,31 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        mainScope.launch { test() }
+        mainScope.launch {
+            test()
+        }
     }
 
     suspend fun test() {
         Log.e(TAG, "test run!")
 
-        // hold the MutableStateFlow object, we can change it later
-        val version = MutableSharedFlowHolder.getStateFlow(name = "version", newValue = 1001)
-            .also { flow ->
-                // set this subscription only take 4,
-                flow.take(4)
-                    .onEach { Log.e(TAG, "main collect: $it") }
-                    .launchIn(mainScope)
-            }
+        // get the MutableStateFlow from SharedStore which type is 'Int' and named "version",
+        // and update the state value to '1001' if it exists before us.
+        val version = 1001.asSharedStoreMutableStateFlow("version")
+
+        version.take(4)
+            .onEach { Log.e(TAG, "main collect: $it") }
+            .launchIn(mainScope)
 
         Log.e(TAG, "test go on!")
         delay(200)
         version.value = 1002
 
+        "version_empty".asSharedStoreMutableStateFlow()
+            .onEach { Log.e(TAG, "new collect: $it") }
+
         delay(400)
-        val job = MutableSharedFlowHolder.getStateFlow(name = "version", newValue = 1003)
+        val job = 1003.asSharedStoreMutableStateFlow("version")
             .onEach { Log.e(TAG, "io collect: $it") }
             .launchIn(mainScope + Dispatchers.IO)
 
@@ -52,9 +57,6 @@ class MainActivity : AppCompatActivity() {
         val new = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
         val job2 = mainScope.launch(new) {
-            MutableSharedFlowHolder.getStateFlow("version_empty")
-                .onEach { Log.e(TAG, "new collect: $it") }
-
             repeat(6) {
                 Log.e(TAG, "new set value: ${1006 + it}")
                 version.value = 1006 + it
